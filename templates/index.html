@@ -1,0 +1,171 @@
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+
+
+  <script type="text/javascript" charset="utf-8">
+    firstTime=true
+    $(document).ready(function() {
+        // Use a "/test" namespace.
+        // An application can open a connection on multiple namespaces, and
+        // Socket.IO will multiplex all those connections on a single
+        // physical channel. If you don't care about multiple channels, you
+        // can set the namespace to an empty string.
+        namespace = '/test';
+
+        // Connect to the Socket.IO server.
+        // The connection URL has the following format, relative to the current page:
+        //     http[s]://<domain>:<port>[/<namespace>]
+        var socket = io(namespace);
+
+        // Event handler for new connections.
+        // The callback function is invoked when a connection with the
+        // server is established.
+        //socket.on('connect', function() {
+        //    socket.emit('my_event', {data: 'I\'m connected!'});
+        //});
+
+        // Event handler for server sent data.
+        // The callback function is invoked whenever the server emits data
+        // to the client. The data is then displayed in the "Received"
+        // section of the page.
+        socket.on('my_response', function(msg, cb) {
+            // exit on first entry
+            //if (firstTime==true) {
+            //    firstTime=false;
+            //    return;
+            //} ;
+
+            $('#log').html( '<strong>' + msg.firstName + ' ' + msg.lastName + ' just closed a deal "' + msg.Name + '" with a value of $' + msg.Value + '</strong>' );
+            $('#img').html('<img  src="/static/' + msg.firstName + '.' + msg.lastName + '.png" width="300" height="300" > </img> '   );
+            $('#sound').html('<audio controls id="audioPlay"> <source src="/static/money.mp3" type="audio/mpeg"> </audio> '   );
+
+            $(".collapse").collapse('show')
+            document.getElementById("audioPlay").play();
+
+
+            setTimeout(function(){
+                $(".collapse").collapse('hide');
+            }, 20000);
+
+ 
+        });
+        //
+        // Event Handler for Total Spend Table
+        //
+        socket.on('totalDollar', function(msg, cb) {
+            var trHTML = '';
+            $.each(msg, function(i, item) {
+                if (i != 'NoOfRows' ) {
+                     trHTML += '<tr><td>' + item.firstName + ' ' + item.lastName + '</td><td>' + item.totalDollar + '</td></tr>';
+                }
+            });
+            $('#totalDollar').html(trHTML);
+
+        });
+
+        //
+        // Event Handler for Total Count Table
+        //
+        socket.on('totalCount', function(msg, cb) {
+            var trHTML = '';
+            $.each(msg, function(i, item) {
+                if (i != 'NoOfRows' ) {
+                     trHTML += '<tr><td>' + item.firstName + ' ' + item.lastName + '</td><td>' + item.totalDeals + '</td></tr>';
+                }
+            });
+            $('#totalCount').html(trHTML);
+
+        });
+
+
+
+    });
+</script>
+
+</head>
+<body> 
+    <div class="jumbotron text-center">
+        <h1>HubSpot Deal Scoreboard</h1>
+        <p>This weeks leaderboard</p>
+    </div>
+
+    <div id='DealAlert'class="collapse"  >
+        <div id="DealDetails" class="row"  >
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <h3>
+                    <div id="log" class="alert alert-success text-center" ></div>
+                </h3>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+
+        <div id="DealImage" class="row"  >
+            <div class="col-md-5"></div>
+            <div class="col-md-2">
+                <div id="img"></div>
+                <div id="sound"></div>
+            </div>
+
+            <div class="col-md-5"></div>
+        </div>
+    </div>
+
+
+ 
+
+    <div class="row">
+        <div class="col-md-2"></div>
+
+        <div class="col-md-3 ">
+            <div class="well">
+                <table class="table table-striped" >
+                    <thead>
+                    <tr>
+                        <th id="repName" >Name</th>
+                        <th>Total $ Sales</th>
+                    </tr>
+                    </thead >
+                    <tbody id="totalDollar">
+                    </tbody>
+                </table>    
+            </div>        
+        </div>
+
+        <div class="col-md-2"></div>
+        <div class="col-md-3">
+            <div class="well">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Total # of Sales</th>
+                    </tr>
+                    </thead>
+                    <tbody id="totalCount">
+                    </tbody>
+                </table>   
+            </div>         
+        </div>
+
+        <div class="col-md-2"></div>
+
+
+    </div>
+
+
+
+</body>
+</html>
