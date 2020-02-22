@@ -115,5 +115,5 @@ def test_connect():
 
 if __name__ == '__main__':
     print ("hello")
-    socketio.run(app)
+    socketio.run(app,debug= True )
 
