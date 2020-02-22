@@ -41,14 +41,18 @@
         // to the client. The data is then displayed in the "Received"
         // section of the page.
         socket.on('my_response', function(msg, cb) {
-            // exit on first entry
-            //if (firstTime==true) {
-            //    firstTime=false;
-            //    return;
-            //} ;
+
+            
+            pictureURL = '/static/' + msg.firstName + '.' + msg.lastName + '.png'; 
+
+            $.get(pictureURL)
+                .fail(function() { 
+                    pictureURL = '/static/no-pic.png';
+                })
 
             $('#log').html( '<strong>' + msg.firstName + ' ' + msg.lastName + ' just closed a deal "' + msg.Name + '" with a value of $' + msg.Value + '</strong>' );
-            $('#img').html('<img  src="/static/' + msg.firstName + '.' + msg.lastName + '.png" width="300" height="300" > </img> '   );
+            //$('#img').html('<img  src="/static/' + msg.firstName + '.' + msg.lastName + '.png" width="300" height="300" > </img> '   );
+            $('#img').html('<img  src="+pictureURL" width="300" height="300" > </img> '   );
             $('#sound').html('<audio controls id="audioPlay"> <source src="/static/money.mp3" type="audio/mpeg"> </audio> '   );
 
             $(".collapse").collapse('show')
