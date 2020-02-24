@@ -6,20 +6,47 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="static/css/dropzone.css">
 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <script src="static/js/dropzone.js"></script>
   
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+        namespace = '/admin';
+
+        var socket = io(namespace);
+
+        socket.on('refreshThumbnails', function(msg, cb) {
+            //
+            // setup and show rep who won deal
+            console.log ("new picture loaded")
+        });
+
+        socket.on('connect', function() {
+            console.log("socket connected");
+            //socket.emit('adminConnected', {data: 'Admin connected!'});
+        });
+
+
+        //
+        // Event Handler to fefresh thumbnails
+        //
+        socket.on('refreshThumbnails', function(msg, cb) {
+            console.log("totalDollar received");
+          //  $.each(msg, function(i, item) {
+          //      if (i != 'NoOfRows' ) {
+          //           trHTML += '<tr><td>' + item.firstName + ' ' + item.lastName + '</td><td>' + item.totalDollar + '</td></tr>';
+          //      }
+          //  });
+          //  $('#totalDollar').html(trHTML);
+
+        });
 
 
 
-
-
-
-
-
-
-
+    });
+</script>
 
 
 </head>

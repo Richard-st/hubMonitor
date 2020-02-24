@@ -82,8 +82,8 @@ def sortDealTable(dictToSort, sortKey):
         sortedTable[rank] = dictToSort[key]
 
     sortedTable['NoOfRows']   = rank
-    print ('Sorted Keys = ' + str(sortedKeys))
-    print ('Sorted Dict = ' + str(sortedTable))
+    #print ('Sorted Keys = ' + str(sortedKeys))
+    #print ('Sorted Dict = ' + str(sortedTable))
     return sortedTable
 
 

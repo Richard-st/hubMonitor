@@ -1,3 +1,5 @@
 check that the last deal is fetched for single and multi page fetches
 
 work out why socket appears to stop afte an amount of time
+
+remove "mess 1" from index.html

@@ -15,14 +15,13 @@
 
 
   <script type="text/javascript" charset="utf-8">
-    firstTime=true
     $(document).ready(function() {
         // Use a "/test" namespace.
         // An application can open a connection on multiple namespaces, and
         // Socket.IO will multiplex all those connections on a single
         // physical channel. If you don't care about multiple channels, you
         // can set the namespace to an empty string.
-        namespace = '/test';
+        namespace = '/index';
 
         // Connect to the Socket.IO server.
         // The connection URL has the following format, relative to the current page:
@@ -41,13 +40,15 @@
         // to the client. The data is then displayed in the "Received"
         // section of the page.
 
-        socket.on('my_response', function(msg, cb) {
 
+        //
+        // event handler for new_deal
+        //
+        socket.on('new_deal', function(msg, cb) {
             //
-            // check if a profile pic exists
+            // check if a profile pic exists, if not use '/static/no-pic.png'
             //
             pictureURL = '/static/' + msg.firstName + '.' + msg.lastName + '.png'; 
-
             var http = new XMLHttpRequest();
             http.open('HEAD', pictureURL, false);
             http.send();
@@ -55,28 +56,40 @@
                 pictureURL = '/static/no-pic.png';
             }
 
- 
+            //
+            // setup and show rep who won deal
+            //
+            $('#dealInfo').html( '<strong>' + msg.firstName + ' ' + msg.lastName + ' just closed a deal "' + msg.Name + '" with a value of $' + msg.Value + '</strong>' );
 
-            $('#log').html( '<strong>' + msg.firstName + ' ' + msg.lastName + ' just closed a deal "' + msg.Name + '" with a value of $' + msg.Value + '</strong>' );
-            //$('#img').html('<img  src="/static/' + msg.firstName + '.' + msg.lastName + '.png" width="300" height="300" > </img> '   );
-            $('#img').html('<img  src="' + pictureURL + '" width="300" height="300" > </img> '   );
-            $('#sound').html('<audio controls id="audioPlay"> <source src="/static/money.mp3" type="audio/mpeg"> </audio> '   );
+            $('#repImage').html('<img  src="' + pictureURL + '" width="300" height="300" > </img> '   );
+
+            $('#winSound').html('<audio controls id="audioPlay"> <source src="/static/money.mp3" type="audio/mpeg"> </audio> '   );
 
             $(".collapse").collapse('show')
             document.getElementById("audioPlay").play();
 
-
+            //
+            // leave on screen for 20 secs
+            //
             setTimeout(function(){
                 $(".collapse").collapse('hide');
             }, 20000);
 
  
         });
+
+        socket.on('connect', function() {
+            console.log("socket connected");
+            socket.emit('mess 1', {data: 'Client connected!'});
+        });
+
+
         //
         // Event Handler for Total Spend Table
         //
         socket.on('totalDollar', function(msg, cb) {
             var trHTML = '';
+            console.log("totalDollar received");
             $.each(msg, function(i, item) {
                 if (i != 'NoOfRows' ) {
                      trHTML += '<tr><td>' + item.firstName + ' ' + item.lastName + '</td><td>' + item.totalDollar + '</td></tr>';
@@ -117,7 +130,7 @@
             <div class="col-md-2"></div>
             <div class="col-md-8">
                 <h3>
-                    <div id="log" class="alert alert-success text-center" ></div>
+                    <div id="dealInfo" class="alert alert-success text-center" ></div>
                 </h3>
             </div>
             <div class="col-md-2"></div>
@@ -126,8 +139,8 @@
         <div id="DealImage" class="row"  >
             <div class="col-md-5"></div>
             <div class="col-md-2">
-                <div id="img"></div>
-                <div id="sound"></div>
+                <div id="repImage"></div>
+                <div id="winSound"></div>
             </div>
 
             <div class="col-md-5"></div>
