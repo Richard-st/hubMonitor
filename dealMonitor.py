@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, \
 import requests
 import json
 import time
+import os 
 
 import hubspotDeals 
 
@@ -15,12 +16,34 @@ broadcastTables = False
 # different async modes, or leave it set to None for the application to choose
 # the best option based on installed packages.
 async_mode = None
+UPLOAD_FOLDER = 'static/img/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp3'}
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode=async_mode)
-thread = None
-thread_lock = Lock()
+app.config['SECRET_KEY']    = 'secret!'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+socketio                    = SocketIO(app, async_mode=async_mode)
+thread                      = None
+thread_lock                 = Lock()
+
+
+def getFilesInDir():
+
+    staticDir = 'static/img/uploads/'
+    uploadDir = {}
+
+    with os.scandir(staticDir) as entries:
+        for entry in entries:
+            if entry.is_file():
+                uploadDir[entry.name] = entry.path
+
+    return uploadDir
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 def getDealId():
     response = requests.get("https://aqueous-wave-55186.herokuapp.com/getDeal")
@@ -44,8 +67,8 @@ def initalBrowserConnect():
 
 
 
+
 def background_thread():
-    """Example of how to send server generated events to clients."""
     global broadcastTables
     prevDealID = 0
     while True:
@@ -100,20 +123,51 @@ def background_thread():
             socketio.emit('totalCount', sortedCountTable, namespace='/test')
 
 
+
+
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
+@app.route('/admin')
+def admin():
+    return render_template('admin.html', async_mode=socketio.async_mode)
+
+@app.route('/file-upload', methods=["POST"])
+def fileUpload():
+    print ("file upload" )
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return ""  
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return ""  
+        if file and allowed_file(file.filename):
+            #filename = secure_filename(file.filename)
+            filename = file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return ""   
+    return ""
+
+
 @socketio.on('connect', namespace='/test')
 def test_connect():
     global thread
+    print("===========starting thread")
     with thread_lock:
         if thread is None:
             thread = socketio.start_background_task(background_thread)
     #emit('my_response', {'data': 'Connected', 'count': 0})
 
 
+
+
 if __name__ == '__main__':
     print ("hello")
-    socketio.run(app,debug= True )
+    socketio.run(app,host='0.0.0.0',debug= True )
 

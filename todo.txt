@@ -1,3 +1,3 @@
 check that the last deal is fetched for single and multi page fetches
-stop first playing of deal when reloading page
+
 work out why socket appears to stop afte an amount of time
