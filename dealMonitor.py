@@ -94,9 +94,20 @@ def sendThumbnailsToAdmin():
     #
     # send tables to browsers
     #
+    print ('Emit admin refreshThumbnails')
     fileDiList = getFilesInDir()
     socketio.emit('refreshThumbnails', fileDiList, namespace='/admin')
 
+#
+# image file delete
+#
+@socketio.on('deleteRepImgFile'  , namespace='/admin')
+def deleteRepImgFile(fln):
+    print ("fln - " + str(fln))
+    deleteFln = 'static/img/uploads/' + fln["data"]
+    os.remove(deleteFln)
+    print("File Removed!")
+    sendThumbnailsToAdmin()
 
 
 #
@@ -165,13 +176,13 @@ def fileUpload():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            print('No file part')
             return ""  
         file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
-            flash('No selected file')
+            print('No selected file')
             return ""  
         if file and allowed_file(file.filename):
             #filename = secure_filename(file.filename)

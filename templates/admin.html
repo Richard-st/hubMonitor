@@ -1,26 +1,94 @@
 <html lang="en">
 <head>
-  <title>Bootstrap Example</title>
+  <title>Scoreboard Admin</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="static/css/dropzone.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <script src="static/js/dropzone.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
   
-  <script type="text/javascript" charset="utf-8">
-    $(document).ready(function() {
-        namespace = '/admin';
+  <script type="text/javascript"  src="{{ url_for('static', filename='js/dragdrop.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dragdrop.css') }}">
 
-        var socket = io(namespace);
+  <script type="text/javascript" charset="utf-8">
+    namespace = '/admin';
+    var socket = io(namespace);
+
+    $(document).ready(function() {
 
         socket.on('refreshThumbnails', function(msg, cb) {
             //
             // setup and show rep who won deal
             console.log ("new picture loaded")
+
+            var rowCount = 1
+            var colCount = 1
+            var divRowIDTemplate = "#repImageRow"
+            var divRowID    = divRowIDTemplate
+            divRowID        += rowCount.toString()
+
+            //empty container
+            $("#repImageContainer").empty();
+            var rowDiv = '<div id="repImageRow1" class="row pt-3"  > </div>'
+            $("#repImageContainer").append(rowDiv)
+
+
+            $.each(msg, function(filename, filepath) {
+                //setup card ID
+                var newID       = "repCard-row"
+                newID           += rowCount.toString()
+                newID           += "col"
+                newID           += colCount.toString()
+
+                //
+                // insert into row
+                //
+                var $newCard = $('#cardTemplate').clone();
+                $newCard.attr("id",newID);
+
+                //var $imgElement = $newCard.find("#cardTemplateImg");
+
+                //$imgElement.attr("src",filepath);
+
+                $newCard.find("#cardTemplateImg").attr("src",filepath);
+                $newCard.find("#cardTemplateFln").text(filename)
+
+                // setup button call function and parameter
+                var funcStr = "deleteImgFile('";
+                funcStr     += filename;
+                funcStr     += "')";
+
+                $newCard.find("#deleteRepImg").attr("onclick", funcStr );
+
+
+                $newCard.removeClass("d-none");
+                $newCard.appendTo( divRowID );
+                console.log(newID)
+
+                colCount +=1;
+
+                //check for new row
+                if (colCount>5){
+                    rowCount +=1;
+                    colCount = 1;
+                    //create new row
+                    var oldDivRowID = divRowID
+                    divRowID        = divRowIDTemplate
+                    divRowID        += rowCount.toString()
+
+                    xdivRowID       = divRowID.replace('#','')
+                    var rowDiv = '<div id="*id*" class="row pt-3"  > </div>'
+                    rowDiv = rowDiv.replace("*id*" , xdivRowID )
+
+                    $(oldDivRowID).after(rowDiv)
+                }
+
+            });
+
+            
         });
 
         socket.on('connect', function() {
@@ -29,68 +97,76 @@
         });
 
 
-        //
-        // Event Handler to fefresh thumbnails
-        //
-        socket.on('refreshThumbnails', function(msg, cb) {
-            console.log("totalDollar received");
-          //  $.each(msg, function(i, item) {
-          //      if (i != 'NoOfRows' ) {
-          //           trHTML += '<tr><td>' + item.firstName + ' ' + item.lastName + '</td><td>' + item.totalDollar + '</td></tr>';
-          //      }
-          //  });
-          //  $('#totalDollar').html(trHTML);
-
+    
+        $("#deleteRepImg").click(function(fln) {
+            console.log( "Handler for .click() called." );
+            socket.emit('deleteRepImgFile', {data: fln});
         });
-
-
-
     });
+
+
+
+
 </script>
 
 
 </head>
 <body> 
-    <div class="jumbotron text-center">
+
+ 
+    <div class=" jumbotron jumbotron-fluid text-center bg-primary text-white">
         <h1>HubSpot Deal Admin</h1>
         <p>File maintenance</p>
     </div>
 
-    <div class="row"  >
+    <div id='dropZone' class='row'>
+        <div class="col-md-4"></div>
         <div class="col-md-4">
+            <!-- Form for file input -->
+            <form action="" method="post" enctype="multipart/form-data" id="js-upload-form" class="d-none">
+                <div class="form-inline">
+                <div class="form-group">
+                    <input type="file" name="files[]" id="js-upload-files" multiple>
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary" id="js-upload-submit">Upload files</button>
+                </div>
+            </form>    
+            <!-- Drop Zone -->
 
+            <div class="upload-drop-zone" id="drop-zone">
+                Drag image / mpg files
+            </div>
         </div>
-        <div class="col-md-1">
-            <img src="static/img/uploads/robocop.png"  class="img-thumbnail" >
+        <div class="col-md-4"></div>
+    </div>
+
+
+
+   
+    <div id="repImageContainer"  >
+        <div id="repImageRow1" class="row "  >
         </div>
-        <div class="col-md-4">
+    </div>
+
+    <!-- Hidden Template for dynamics card creation-->
+    <div id="cardTemplate" class="col-md-2 .bg-primary ml-4 d-none ">
+        <div class="card  border border-primary    ">
+            <img id="cardTemplateImg" src="static/img/uploads/robocop.png"  class=" pt-3  mx-auto   "  style="width: 200px;height:200px" >     
+            <div class="card-body  text-blue ">
+                <h5 id="cardTemplateFln" class="card-title text-center"></h4>
+                <button id="deleteRepImg" onclick="" type="submit" class="btn btn-primary mx-auto d-block text-center">Delete</button>
+            </div>
+
             
         </div>
-    </div>
+    </div>        
 
+<script>
+    function deleteImgFile(fln) {
+        socket.emit('deleteRepImgFile', {data: fln});
+        console.log( fln );
+    };
+</script>
 
-    <div id="DealDetails" class="row"  >
-
-        <div class="col-md-4"></div>
-
-        <div class="col-md-4" >
-            <form action="/file-upload"
-                class="dropzone"
-                id="imageDrop"> 
-            </form>
-
-            <script>
-                Dropzone.autoDiscover = false;
-                $('.dropzone').dropzone({
-                    addRemoveLinks: true
-                })
-
-            </script>
-        </div>
-
-        <div class="col-md-4"></div>
-
-    </div>
-      
 </body>
 </html>
