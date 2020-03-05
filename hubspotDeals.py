@@ -10,6 +10,7 @@ dealTotalDollar         = {}
 dealTotalCount          = {}
 sortedDealTotalDollar   = {}
 sortedDealTotalCount    = {}
+ownerDetails            = {}
 
 def getLastMondayTS():
     today           = datetime.date.today()
@@ -27,20 +28,57 @@ def getMondayTimestamp():
     return  (today - datetime.timedelta(days=today.weekday()) )
     
 def getDealOwner(ownerId):
-    response = requests.get( config.hubspot['getOwnerEndPoint'] + str(ownerId) + "?hapikey=" + config.hubspot['api'])
-    resJson = response.json()
-    return response.json()
+
+    print("getDealOwneR")
+    print (ownerDetails.keys())
+    print (ownerId)
+    if (ownerId in ownerDetails.keys() ):
+        return ownerDetails['ownerId']
+    else:
+        response = requests.get( config.hubspot['getOwnerEndPoint'] + str(ownerId) + "?hapikey=" + config.hubspot['api'])
+        resJson = response.json()
+        ownerDetails[ownerId]={}
+        ownerDetails[ownerId]['firstName']=resJson['lastName']
+        #ownerDetails[ownerId]['lastname']=resJson['lastName']
+        print ("owner Details")
+        print (str(resJson))        
+        print (str(ownerDetails))        
+        return ownerDetails[ownerId]
+
 
 def getDealDetails(dealId):
     response = requests.get( config.hubspot['getDealEndPoint'] + str(dealId) + "?hapikey=" + config.hubspot['api'])
     resJson = response.json()
     return response.json()
 
+def addDealToTablesV2(deal):
+    global dealTotalDollar
+    global dealTotalCount 
+    owner                                    = deal['properties']['hubspot_owner_id']['value']
+    ownerDetails                             = getDealOwner(owner)
+    if owner in dealTotalDollar:
+        dealTotalDollar[owner]['totalDollar']   =  float ( dealTotalDollar[owner]['totalDollar'])  + float(deal['properties']['hs_closed_amount']['value'])
+    else:
+        dealTotalDollar[owner]                  =  {}
+        dealTotalDollar[owner]['firstName']     =  ownerDetails["firstName"]
+        #dealTotalDollar[owner]['lastName']      =  ownerDetails["lastName"]
+        dealTotalDollar[owner]['totalDollar']   =  float(deal['properties']['hs_closed_amount']['value'])
+
+    if owner in dealTotalCount:
+        dealTotalCount[owner]['totalDeals']     =  int( dealTotalCount[owner]['totalDeals'])  + 1
+    else:
+        dealTotalCount[owner]                   =  {}
+        dealTotalDollar[owner]['firstName']     =  ownerDetails["firstName"]
+        #dealTotalDollar[owner]['lastName']      =  ownerDetails["lastName"]
+        dealTotalCount[owner]['totalDeals']     =  1
+
+
 def addDealToTables(dealDetail):
     # owner :  1234, Firstname , lastname, total $ {'123456' : ["firstName":"Richard","lastName":"Stanners","total":"123.45" ]}
     # owner, Firstname , lastname, total deals
     global dealTotalDollar
     global dealTotalCount 
+
 
     owner                                   = dealDetail['properties']['hubspot_owner_id']['value']
     ownerDetails                            = getDealOwner(owner)
@@ -122,7 +160,7 @@ def getRecentDeals():
     firstcall       = True
 
 
-
+    print ('v2 got response')
     while resJson['offset'] < resJson['total'] or firstcall == True:
         firstcall = False
         for deal in resJson['results']:
@@ -135,11 +173,18 @@ def getRecentDeals():
                     #
                     # check if the deal was closed won this week
                     #
-                    dealDetail = getDealDetails(deal['dealId'])     
-                    dealCloseTS = int(dealDetail['properties']['closedate']['value'])   #remove ms
-                    if dealCloseTS > int(lastMondayTS) :
-                        #print('Offline Deal:'+ str(deal['dealId']) + ' Pipeline: ' + deal['properties']['pipeline']['value'] + ' Stage: ' + str(deal['properties']['dealstage']['value'])  )
-                        addDealToTables(dealDetail)
+                    #V2 dealDetail = getDealDetails(deal['dealId'])      
+                    #V2 dealCloseTS = int(dealDetail['properties']['closedate']['value'])   #remove ms
+                    #V2 print (int(dealDetail['properties']['closedate']['value']) )
+                    #V2 if dealCloseTS > int(lastMondayTS) :
+                    print ('v2 got deal')
+
+                    if 'closedate' in deal['properties'].keys():
+                        print (str(deal['properties']['closedate']))
+                        if int(deal['properties']['closedate']['value']) > int(lastMondayTS) :
+                            print('Offline Deal:'+ str(deal['dealId']) + ' Pipeline: ' + deal['properties']['pipeline']['value'] + ' Stage: ' + str(deal['properties']['dealstage']['value']) + 'owner: ' + str(deal['properties']['hubspot_owner_id']['value'])  )
+                            #v2 addDealToTables(dealDetail)
+                            addDealToTablesV2(deal)
                           
 
         #
