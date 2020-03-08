@@ -129,62 +129,115 @@
             </div>
             <div class="col-md-8">
                 <h1 >HubSpot Deal Scoreboard</h1 >
-                <h3>Administration</h3>
+                <h3>This weeks leaderboard</h3>
             </div>
             <div class="col-md-2"></div>
 
         </div>
-
     </div>
-
-    <div id='dropZone' class='row'>
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-            <!-- Form for file input -->
-            <form action="" method="post" enctype="multipart/form-data" id="js-upload-form" class="d-none">
-                <div class="form-inline">
-                <div class="form-group">
-                    <input type="file" name="files[]" id="js-upload-files" multiple>
+    <!-- Image Panel-->
+    <div class="panel-group" id="accordion">
+          <div class="card card-body  m-5" style="background-color: #C6EEF8;" >
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse1" style="background-color: #C6EEF8; color: #1f2a44;">
+                <h4 class="text-center"> Add/Remove Rep Pictures </h4>
+              </a>
+          </div>
+          <div id="collapse1" class="panel-collapse collapse in">
+            <div id='dropZone' class='row'>
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <!-- Form for file input -->
+                    <form action="" method="post" enctype="multipart/form-data" id="js-upload-form" class="d-none">
+                        <div class="form-inline">
+                        <div class="form-group">
+                            <input type="file" name="files[]" id="js-upload-files" multiple>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary" id="js-upload-submit">Upload files</button>
+                        </div>
+                    </form>    
+                    <!-- Drop Zone -->
+        
+                    <div class="upload-drop-zone" id="drop-zone">
+                        Drag image / mpg files
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-sm btn-primary" id="js-upload-submit">Upload files</button>
+                <div class="col-md-4"></div>
+            </div>
+        
+        
+        
+           
+            <div id="repImageContainer"  >
+                <div id="repImageRow1" class="row "  >
                 </div>
-            </form>    
-            <!-- Drop Zone -->
-
-            <div class="upload-drop-zone" id="drop-zone">
-                Drag image / mpg files
             </div>
-        </div>
-        <div class="col-md-4"></div>
-    </div>
+        
+            <!-- Hidden Template for dynamics card creation-->
+            <div id="cardTemplate" class="col-md-2 .bg-primary ml-4 d-none ">
+                <div class="card  border border-primary    ">
+                    <img id="cardTemplateImg" src="static/img/uploads/robocop.png"  class=" pt-3  mx-auto   "  style="width: 200px;height:200px" >     
+                    <div class="card-body  text-blue ">
+                        <h5 id="cardTemplateFln" class="card-title text-center"></h4>
+                        <button id="deleteRepImg" onclick="" type="submit" class="btn btn-primary mx-auto d-block text-center">Delete</button>
+                    </div>
+        
+                    
+                </div>
+            </div>        
+        
+        <script>
+            function deleteImgFile(fln) {
+                socket.emit('deleteRepImgFile', {data: fln});
+                console.log( fln );
+            };
+        </script>
 
 
 
-   
-    <div id="repImageContainer"  >
-        <div id="repImageRow1" class="row "  >
-        </div>
-    </div>
 
-    <!-- Hidden Template for dynamics card creation-->
-    <div id="cardTemplate" class="col-md-2 .bg-primary ml-4 d-none ">
-        <div class="card  border border-primary    ">
-            <img id="cardTemplateImg" src="static/img/uploads/robocop.png"  class=" pt-3  mx-auto   "  style="width: 200px;height:200px" >     
-            <div class="card-body  text-blue ">
-                <h5 id="cardTemplateFln" class="card-title text-center"></h4>
-                <button id="deleteRepImg" onclick="" type="submit" class="btn btn-primary mx-auto d-block text-center">Delete</button>
+
+
+
+          </div>
+
+          <div class="card card-body  m-5" style="background-color: #C6EEF8;" >
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2" style="background-color: #C6EEF8; color: #1f2a44;">
+              <h4 class="text-center"> Add/Remove Music </h4>
+            </a>
+          </div>
+          <div id="collapse2" class="panel-collapse collapse">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h3>To Follow</h3>
+                </div>
             </div>
+          </div>
 
-            
+          <div class="card card-body  m-5" style="background-color: #C6EEF8;" >
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse3" style="background-color: #C6EEF8; color: #1f2a44;">
+              <h4 class="text-center"> System Settings </h4>
+            </a>
+          </div>
+          <div id="collapse3" class="panel-collapse collapse">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h3>To Follow</h3>
+                </div>
+            </div>
+          </div>
+
+
         </div>
-    </div>        
 
-<script>
-    function deleteImgFile(fln) {
-        socket.emit('deleteRepImgFile', {data: fln});
-        console.log( fln );
-    };
-</script>
+        
+
+
+
+      </div>
+      
+    <!--  -->    
+
+ 
 
 </body>
 </html>
