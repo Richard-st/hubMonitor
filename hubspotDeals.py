@@ -44,8 +44,12 @@ def getDealOwner(ownerId):
         response = requests.get( config.hubspot['getOwnerEndPoint'] + str(ownerId) + "?hapikey=" + config.hubspot['api'])
         resJson = response.json()
         ownerDetails[ownerId]={}
-        ownerDetails[ownerId]['firstName']=resJson['firstName']
-        ownerDetails[ownerId]['lastName']=resJson['lastName']
+        if ( (resJson['firstName'] == "") and (resJson['lastName'] == "")):
+            ownerDetails[ownerId]['firstName']  = resJson['email'].partition(".")[0].capitalize() 
+            ownerDetails[ownerId]['lastName']   = resJson['email'].replace("@yellow.co.nz","").partition(".")[2].capitalize() 
+        else:
+            ownerDetails[ownerId]['firstName']=resJson['firstName'].capitalize()
+            ownerDetails[ownerId]['lastName']=resJson['lastName'].capitalize()
         return ownerDetails[ownerId]
 
 

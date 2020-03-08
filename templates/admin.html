@@ -9,7 +9,15 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-  
+  <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      color: #1f2a44;
+    }
+  </style>
+
+
   <script type="text/javascript"  src="{{ url_for('static', filename='js/dragdrop.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dragdrop.css') }}">
 
@@ -114,9 +122,19 @@
 <body> 
 
  
-    <div class=" jumbotron jumbotron-fluid text-center bg-primary text-white">
-        <h1>HubSpot Deal Admin</h1>
-        <p>File maintenance</p>
+    <div class="jumbotron jumbotron-fluid text-center pt-5 pb-5 " style="background-color: #C6EEF8;">
+        <div id="jumboHeader" class="row"  >
+            <div class="col-md-2 pl-0">
+                <img src="https://cdn11.bigcommerce.com/s-npte00i8ef/stencil/4a56d7a0-2da2-0137-892b-0242ac110005/e/2ebf55a0-80d9-0136-d2c6-7fd6dfdde2be/img/header-footer/yellow-logo.svg" alt="Yellow">
+            </div>
+            <div class="col-md-8">
+                <h1 >HubSpot Deal Scoreboard</h1 >
+                <h3>Administration</h3>
+            </div>
+            <div class="col-md-2"></div>
+
+        </div>
+
     </div>
 
     <div id='dropZone' class='row'>
