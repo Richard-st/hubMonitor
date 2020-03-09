@@ -1,3 +1,5 @@
 env
 config.py
+config_prd.py
+config-dev.py
 static/image/uploads/*

@@ -127,7 +127,7 @@ def background_thread():
 
 
 
-        if dealID > 0 : #and prevDealID != dealID:
+        if dealID > 0 and prevDealID != dealID:
             #
             # send rep information for browser to display
             #

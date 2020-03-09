@@ -145,15 +145,16 @@ def getRecentDeals():
     print ("Deal URL : " + dealGetURL)
     response        = requests.get( dealGetURL )
     resJson         = response.json()
-    firstcall       = True
+    moreData        = True
 
 
-    while resJson['offset'] < resJson['total'] or firstcall == True:
-        firstcall = False
+    while moreData:
         for deal in resJson['results']:
             #
             # check if deal is offline and closed
             #
+            if deal["dealId"] == '1681786123':
+                print ("++++++++++Deal returned")           
             if (deal['isDeleted']                                == False and
                 deal['properties']['pipeline']['value']          == config.hubspot['offlineDealPipeline'] and
                 str(deal['properties']['dealstage']['value'])    == config.hubspot['OfflineClosedWon']):
@@ -170,16 +171,19 @@ def getRecentDeals():
                             #print('Offline Deal:'+ str(deal['dealId']) + ' Pipeline: ' + deal['properties']['pipeline']['value'] + ' Stage: ' + str(deal['properties']['dealstage']['value']) + 'owner: ' + str(deal['properties']['hubspot_owner_id']['value'])  )
                             #v2 addDealToTables(dealDetail)
                             addDealToTablesV2(deal)
-                          
 
-        #
-        # get next block of modified deals
-        #
-        apiOffset   = resJson['offset']
-        dealGetURL  = dealGetURLBase + '&offset='+ str(apiOffset) 
-        response    = requests.get( dealGetURL )
-        print (dealGetURL)
-        resJson     = response.json()
+             
+        if  resJson['hasMore'] == True:
+            #
+            # get next block of modified deals
+            #
+            apiOffset   = resJson['offset']
+            dealGetURL  = dealGetURLBase + '&offset='+ str(apiOffset) 
+            response    = requests.get( dealGetURL )
+            print (dealGetURL)
+            resJson     = response.json()
+        else:
+            moreData    = False
     #
     # Sort tables
     #
