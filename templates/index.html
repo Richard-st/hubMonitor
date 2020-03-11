@@ -57,7 +57,7 @@
             //
             $('#dealInfo').html( '<h1>' + msg.firstName + ' ' + msg.lastName + ' just closed a deal "' + msg.Name + '" with a value of $' + msg.Value + '<//h1>' );
 
-            $('#repImage').html('<img class="border rounded" width="300" height="300" style="border-color: #1f2a44 !important ; border-width:3px !important;" src="' + pictureURL + '" width="300" height="300" > </img> '   );
+            $('#repImage').html('<img class="border rounded" height="400" style="border-color: #1f2a44 !important ; border-width:3px !important;" src="' + pictureURL + '"  > </img> '   );
 
             $('#winSound').html('<audio controls autoplay id="audioPlay"> <source src="/static/money.mp3" type="audio/mpeg"> </audio> '   );
 
@@ -151,13 +151,13 @@
         </div>
 
         <div id="DealImage" class="row"  >
-            <div class="col-md-5"></div>
-            <div class="col-md-2 pb-5">
-                <div id="repImage"></div>
+            <div class="col-md-4"></div>
+            <div class="col-md-4 pb-5">
+                <div id="repImage" class="text-center" height="400px" width="400px" overflow="hidden" ></div>
                 <div id="winSound" class="d-none"></div>
             </div>
 
-            <div class="col-md-5"></div>
+            <div class="col-md-4"></div>
         </div>
     </div>
 
