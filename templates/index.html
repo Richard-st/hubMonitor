@@ -44,7 +44,7 @@
             //
             // check if a profile pic exists, if not use '/static/no-pic.png'
             //
-            pictureURL = '/static/img/uploads/' + msg.firstName + '.' + msg.lastName + '.png'; 
+            pictureURL = '/static/img/uploads/' + msg.firstName + '.' + msg.lastName.replace("'","") + '.png'; 
             var http = new XMLHttpRequest();
             http.open('HEAD', pictureURL, false);
             http.send();
@@ -59,7 +59,7 @@
 
             $('#repImage').html('<img class="border rounded" height="400" style="border-color: #1f2a44 !important ; border-width:3px !important;" src="' + pictureURL + '"  > </img> '   );
 
-            $('#winSound').html('<audio controls autoplay id="audioPlay"> <source src="/static/money.mp3" type="audio/mpeg"> </audio> '   );
+            $('#winSound').html('<audio controls autoplay id="audioPlay"> <source src="/static/music/' +   msg.musicFln + '" type="audio/mpeg"> </audio> '   );
 
             $(".collapse").collapse('show')
 

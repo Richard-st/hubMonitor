@@ -7,6 +7,7 @@ import requests
 import json
 import time
 import os 
+import random
 
 import hubspotDeals 
 
@@ -15,12 +16,15 @@ import hubspotDeals
 # different async modes, or leave it set to None for the application to choose
 # the best option based on installed packages.
 async_mode = None
-UPLOAD_FOLDER = 'static/img/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp3'}
+UPLOAD_FOLDER               = 'static/img/uploads'
+MUSIC_UPLOAD_FOLDER         = 'static/music'
+ALLOWED_EXTENSIONS          = {'png'}
+MUSIC_ALLOWED_EXTENSIONS    = {'mp3'}
 
 app = Flask(__name__)
 app.config['SECRET_KEY']    = 'secret!'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER']         = UPLOAD_FOLDER
+app.config['MUSIC_UPLOAD_FOLDER']   = MUSIC_UPLOAD_FOLDER
 socketio                    = SocketIO(app, async_mode=async_mode)
 thread                      = None
 thread_lock                 = Lock()
@@ -41,6 +45,18 @@ def getFilesInDir():
 
     return uploadDir
 
+def getMusicFilesInDir():
+
+    staticDir = 'static/music/'
+    uploadDir = {}
+
+    with os.scandir(staticDir) as entries:
+        for entry in entries:
+            if entry.is_file():
+                uploadDir[entry.name] = entry.path
+
+    return uploadDir
+
 
 #
 # valid upload types
@@ -48,6 +64,13 @@ def getFilesInDir():
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+#
+# music valid upload types
+#
+def music_allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in MUSIC_ALLOWED_EXTENSIONS
 
 #
 # check for new closed deals
@@ -97,6 +120,14 @@ def sendThumbnailsToAdmin():
     print ('Emit admin refreshThumbnails')
     fileDiList = getFilesInDir()
     socketio.emit('refreshThumbnails', fileDiList, namespace='/admin')
+    #
+    # send music tables to browsers
+    #
+    print ('Emit admin refreshMusic')
+    fileDiList = getMusicFilesInDir()
+    socketio.emit('refreshMusic', fileDiList, namespace='/admin')
+
+
 
 #
 # image file delete
@@ -109,6 +140,29 @@ def deleteRepImgFile(fln):
     print("File Removed!")
     sendThumbnailsToAdmin()
 
+#
+# music file delete
+#
+@socketio.on('deleteMusicFile'  , namespace='/admin')
+def deleteMusicFile(fln):
+    print ("fln - " + str(fln))
+    deleteFln = 'static/music/' + fln["data"]
+    os.remove(deleteFln)
+    print("File Removed!")
+    sendThumbnailsToAdmin()
+
+#
+# return a random music file
+#
+
+def getRndMusicFln():
+    random.seed()
+    musicDir        = getMusicFilesInDir()
+    musicFilesNo    = len( musicDir)
+    musicRndIdx     = random.randrange(1,musicFilesNo+1)
+    musicRndFln     = list(  musicDir )[musicRndIdx-1]
+    print ("rnd file   =" + musicRndFln)
+    return musicRndFln
 
 #
 # thread checking for  new deals. If found, broadcast details to clients
@@ -127,7 +181,7 @@ def background_thread():
 
 
 
-        if dealID > 0 and prevDealID != dealID:
+        if dealID > 0 :#and prevDealID != dealID:
             #
             # send rep information for browser to display
             #
@@ -135,9 +189,11 @@ def background_thread():
             dealOwner   = hubspotDeals.getDealOwner(dealInfo ['properties']['hubspot_owner_id']['value'])
             firstName   = dealOwner['firstName']
             lastName    = dealOwner['lastName']
+            # get a random music file
+            musicFln    =  getRndMusicFln()
 
             socketio.emit('new_deal',
-                          {'data': 'Deal Closed ', 'ID': dealID, 'Name' : dealInfo ['properties']['dealname']['value']  , 'Value' :  dealInfo ['properties']['amount']['value'] , 'firstName' : firstName, 'lastName' : lastName },
+                          {'data': 'Deal Closed ', 'ID': dealID, 'Name' : dealInfo ['properties']['dealname']['value']  , 'Value' :  dealInfo ['properties']['amount']['value'] , 'firstName' : firstName, 'lastName' : lastName, 'musicFln' : musicFln },
                           namespace='/index')
             prevDealID = dealID
 
@@ -193,6 +249,30 @@ def fileUpload():
             return ""   
     return ""
 
+@app.route('/music-file-upload', methods=["POST"])
+def musicFileUpload():
+    if request.method == 'POST':
+        print ("music file upload" )
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('No file part')
+            return "file.filename"  
+        file = request.files['file']
+        print ("File Name = " + file.filename )
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            print('No selected file')
+            return ""  
+        if file and music_allowed_file(file.filename):
+            print('Saving music file')
+            #filename = secure_filename(file.filename)
+            filename = file.filename
+            file.save(os.path.join(app.config['MUSIC_UPLOAD_FOLDER'], filename))
+            #
+            sendThumbnailsToAdmin()
+            return ""   
+    return ""
 
 
 print("starting thread")

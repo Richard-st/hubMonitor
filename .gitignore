@@ -3,3 +3,4 @@ config.py
 config_prd.py
 config-dev.py
 static/img/uploads/*
+test.py

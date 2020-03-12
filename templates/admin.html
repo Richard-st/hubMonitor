@@ -1,134 +1,214 @@
 <html lang="en">
+
 <head>
-  <title>Scoreboard Admin</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-  
-
-  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-  <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
-  <style>
-    body {
-      font-family: 'Montserrat', sans-serif;
-      color: #1f2a44;
-    }
-  </style>
-  <link rel="shortcut icon" type="image/x-icon" href="https://yellow.co.nz/static/images/favicon.ico">
-
-  <script type="text/javascript"  src="{{ url_for('static', filename='js/dragdrop.js') }}"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/dragdrop.css') }}">
-
-  <script type="text/javascript" charset="utf-8">
-    namespace = '/admin';
-    var socket = io(namespace);
-
-    $(document).ready(function() {
-
-        socket.on('refreshThumbnails', function(msg, cb) {
-            //
-            // setup and show rep who won deal
-            console.log ("new picture loaded")
-
-            var rowCount = 1
-            var colCount = 1
-            var divRowIDTemplate = "#repImageRow"
-            var divRowID    = divRowIDTemplate
-            divRowID        += rowCount.toString()
-
-            //empty container
-            $("#repImageContainer").empty();
-            var rowDiv = '<div id="repImageRow1" class="row pt-3"  > </div>'
-            $("#repImageContainer").append(rowDiv)
+    <title>Scoreboard Admin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
 
-            $.each(msg, function(filename, filepath) {
-                //setup card ID
-                var newID       = "repCard-row"
-                newID           += rowCount.toString()
-                newID           += "col"
-                newID           += colCount.toString()
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+        integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #1f2a44;
+        }
+    </style>
+    <link rel="shortcut icon" type="image/x-icon" href="https://yellow.co.nz/static/images/favicon.ico">
 
+    <script type="text/javascript" src="{{ url_for('static', filename='js/dragdrop.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/musicDragdrop.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dragdrop.css') }}">
+
+    <script type="text/javascript" charset="utf-8">
+        namespace = '/admin';
+        var socket = io(namespace);
+
+        $(document).ready(function () {
+
+            socket.on('refreshThumbnails', function (msg, cb) {
                 //
-                // insert into row
-                //
-                var $newCard = $('#cardTemplate').clone();
-                $newCard.attr("id",newID);
+                // setup and show rep who won deal
+                console.log("new picture loaded")
 
-                //var $imgElement = $newCard.find("#cardTemplateImg");
+                var rowCount = 1
+                var colCount = 1
+                var divRowIDTemplate = "#repImageRow"
+                var divRowID = divRowIDTemplate
+                divRowID += rowCount.toString()
 
-                //$imgElement.attr("src",filepath);
-
-                $newCard.find("#cardTemplateImg").attr("src",filepath);
-                $newCard.find("#cardTemplateFln").text(filename)
-
-                // setup button call function and parameter
-                var funcStr = "deleteImgFile('";
-                funcStr     += filename;
-                funcStr     += "')";
-
-                $newCard.find("#deleteRepImg").attr("onclick", funcStr );
+                //empty container
+                $("#repImageContainer").empty();
+                var rowDiv = '<div id="repImageRow1" class="row pt-3"  > </div>'
+                $("#repImageContainer").append(rowDiv)
 
 
-                $newCard.removeClass("d-none");
-                $newCard.appendTo( divRowID );
-                console.log(newID)
+                $.each(msg, function (filename, filepath) {
+                    //setup card ID
+                    var newID = "repCard-row"
+                    newID += rowCount.toString()
+                    newID += "col"
+                    newID += colCount.toString()
 
-                colCount +=1;
+                    //
+                    // insert into row
+                    //
+                    var $newCard = $('#cardTemplate').clone();
+                    $newCard.attr("id", newID);
 
-                //check for new row
-                if (colCount>5){
-                    rowCount +=1;
-                    colCount = 1;
-                    //create new row
-                    var oldDivRowID = divRowID
-                    divRowID        = divRowIDTemplate
-                    divRowID        += rowCount.toString()
+                    //var $imgElement = $newCard.find("#cardTemplateImg");
 
-                    xdivRowID       = divRowID.replace('#','')
-                    var rowDiv = '<div id="*id*" class="row pt-3"  > </div>'
-                    rowDiv = rowDiv.replace("*id*" , xdivRowID )
+                    //$imgElement.attr("src",filepath);
 
-                    $(oldDivRowID).after(rowDiv)
-                }
+                    $newCard.find("#cardTemplateImg").attr("src", filepath);
+                    $newCard.find("#cardTemplateFln").text(filename)
+
+                    // setup button call function and parameter
+                    var funcStr = "deleteImgFile('";
+                    funcStr += filename;
+                    funcStr += "')";
+
+                    $newCard.find("#deleteRepImg").attr("onclick", funcStr);
+
+
+                    $newCard.removeClass("d-none");
+                    $newCard.appendTo(divRowID);
+                    console.log(newID)
+
+                    colCount += 1;
+
+                    //check for new row
+                    if (colCount > 5) {
+                        rowCount += 1;
+                        colCount = 1;
+                        //create new row
+                        var oldDivRowID = divRowID
+                        divRowID = divRowIDTemplate
+                        divRowID += rowCount.toString()
+
+                        xdivRowID = divRowID.replace('#', '')
+                        var rowDiv = '<div id="*id*" class="row pt-3"  > </div>'
+                        rowDiv = rowDiv.replace("*id*", xdivRowID)
+
+                        $(oldDivRowID).after(rowDiv)
+                    }
+
+                });
+
 
             });
 
-            
+            socket.on('refreshMusic', function (msg, cb) {
+                //
+                // setup and music files
+                console.log("new music loaded")
+
+                var rowCount = 1
+                var colCount = 1
+                var divRowIDTemplate = "#musicRow"
+                var divRowID = divRowIDTemplate
+                divRowID += rowCount.toString()
+
+                //empty container
+                $("#musicContainer").empty();
+                var rowDiv = '<div id="musicRow1" class="row pt-3"  > </div>'
+                $("#musicContainer").append(rowDiv)
+
+
+                $.each(msg, function (filename, filepath) {
+                    //setup card ID
+                    var newID = "musicCard-row"
+                    newID += rowCount.toString()
+                    newID += "col"
+                    newID += colCount.toString()
+
+                    //
+                    // insert into row
+                    //
+                    var $newCard = $('#musicCardTemplate').clone();
+                    $newCard.attr("id", newID);
+
+  
+                    $newCard.find("#musicCardTemplateAudio").attr("src", filepath);
+                    $newCard.find("#musicCardTemplateFln").text(filename)
+
+                    // setup button call function and parameter
+                    var funcStr = "deleteMusicFile('";
+                    funcStr += filename;
+                    funcStr += "')";
+
+                    $newCard.find("#deleteMusicFile").attr("onclick", funcStr);
+
+
+                    $newCard.removeClass("d-none");
+                    $newCard.appendTo(divRowID);
+                    console.log(newID)
+
+                    colCount += 1;
+
+                    //check for new row
+                    if (colCount > 5) {
+                        rowCount += 1;
+                        colCount = 1;
+                        //create new row
+                        var oldDivRowID = divRowID
+                        divRowID = divRowIDTemplate
+                        divRowID += rowCount.toString()
+
+                        xdivRowID = divRowID.replace('#', '')
+                        var rowDiv = '<div id="*id*" class="row pt-3"  > </div>'
+                        rowDiv = rowDiv.replace("*id*", xdivRowID)
+
+                        $(oldDivRowID).after(rowDiv)
+                    }
+
+                });
+
+
+            });
+
+            socket.on('connect', function () {
+                console.log("socket connected");
+                //socket.emit('adminConnected', {data: 'Admin connected!'});
+            });
+
+
+
+            $("#deleteRepImg").click(function (fln) {
+                console.log("Handler for .click() called.");
+                socket.emit('deleteRepImgFile', { data: fln });
+            });
+
+            $("#deleteMusicFile").click(function (fln) {
+                console.log("Handler for .click() called.");
+                socket.emit('deleteMusicFile', { data: fln });
+            });
+
         });
 
-        socket.on('connect', function() {
-            console.log("socket connected");
-            //socket.emit('adminConnected', {data: 'Admin connected!'});
-        });
-
-
-    
-        $("#deleteRepImg").click(function(fln) {
-            console.log( "Handler for .click() called." );
-            socket.emit('deleteRepImgFile', {data: fln});
-        });
-    });
 
 
 
-
-</script>
+    </script>
 
 
 </head>
-<body> 
 
- 
+<body>
+
+
     <div class="jumbotron jumbotron-fluid text-center pt-5 pb-5 text-white " style="background-color: #1f2a44;">
-        <div id="jumboHeader" class="row"  >
+        <div id="jumboHeader" class="row">
             <div class="col-md-2 pl-0">
-                <img  style="width: 90px;height:90px"  src="{{ url_for('static', filename='img/yellow-logo.png') }}" alt="Yellow">
+                <img style="width: 90px;height:90px" src="{{ url_for('static', filename='img/yellow-logo.png') }}"
+                    alt="Yellow">
             </div>
             <div class="col-md-8">
-                <h1 >Admin Panel</h1 >
+                <h1>Admin Panel</h1>
             </div>
             <div class="col-md-2"></div>
 
@@ -136,108 +216,161 @@
     </div>
     <!-- Image Panel-->
     <div class="panel-group" id="accordion">
-          <div class="card card-body  m-5" style="background-color: #1f2a44;" >
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse1" style="background-color: #1f2a44;">
+        <div class="card card-body  m-5" style="background-color: #1f2a44;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1" style="background-color: #1f2a44;">
                 <h4 class="text-center text-white"> Add/Remove Rep Pictures </h4>
-              </a>
-          </div>
-          <div id="collapse1" class="panel-collapse collapse in">
+            </a>
+        </div>
+        <div id="collapse1" class="panel-collapse collapse in">
             <div id='dropZone' class='row'>
                 <div class="col-md-4"></div>
                 <div class="col-md-4">
                     <!-- Form for file input -->
                     <form action="" method="post" enctype="multipart/form-data" id="js-upload-form" class="d-none">
                         <div class="form-inline">
-                        <div class="form-group">
-                            <input type="file" name="files[]" id="js-upload-files" multiple>
+                            <div class="form-group">
+                                <input type="file" name="files[]" id="js-upload-files" multiple>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary" id="js-upload-submit">Upload
+                                files</button>
                         </div>
-                        <button type="submit" class="btn btn-sm btn-primary" id="js-upload-submit">Upload files</button>
-                        </div>
-                    </form>    
+                    </form>
                     <!-- Drop Zone -->
-        
+
                     <div class="upload-drop-zone" id="drop-zone">
-                        Drag image / mpg files
+                        Drag & Drop png files
                     </div>
                 </div>
                 <div class="col-md-4"></div>
             </div>
-        
-        
-        
-           
-            <div id="repImageContainer"  >
-                <div id="repImageRow1" class="row "  >
+
+
+
+
+            <div id="repImageContainer">
+                <div id="repImageRow1" class="row ">
                 </div>
             </div>
-        
+
             <!-- Hidden Template for dynamics card creation-->
             <div id="cardTemplate" class="col-md-2 .bg-primary ml-4 d-none ">
                 <div class="card  border border-primary    ">
-                    <div class = "text-center" height="200px" width="200px"  >
-                        <img id="cardTemplateImg" src="static/img/uploads/robocop.png"  class=" pt-3  mx-auto   "  style="height: 200px;" >     
+                    <div class="text-center" height="200px" width="200px">
+                        <img id="cardTemplateImg" src="static/img/uploads/robocop.png" class=" pt-3  mx-auto   "
+                            style="height: 200px;">
                     </div>
-                    
+
                     <div class="card-body  text-blue ">
-                        <h5 id="cardTemplateFln" class="card-title text-center"></h4>
-                        <button id="deleteRepImg" onclick="" type="submit" class="btn btn-primary mx-auto d-block text-center">Delete</button>
+                        <h5 id="cardTemplateFln" class="card-title text-center">
+                            </h4>
+                            <button id="deleteRepImg" onclick="" type="submit"
+                                class="btn btn-primary mx-auto d-block text-center">Delete</button>
                     </div>
                 </div>
-            </div>        
-        
-        <script>
-            function deleteImgFile(fln) {
-                socket.emit('deleteRepImgFile', {data: fln});
-                console.log( fln );
-            };
-        </script>
-
-
-
-
-
-
-
-          </div>
-
-          <div class="card card-body  m-5" style="background-color: #1f2a44;" >
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2" style="background-color: #1f2a44; color:">
-              <h4 class="text-center text-white"> Add/Remove Music </h4>
-            </a>
-          </div>
-          <div id="collapse2" class="panel-collapse collapse">
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <h3>To Follow</h3>
-                </div>
             </div>
-          </div>
 
-          <div class="card card-body  m-5" style="background-color: #1f2a44;" >
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapse3" style="background-color: #1f2a44; ">
-              <h4 class="text-center text-white"> System Settings </h4>
-            </a>
-          </div>
-          <div id="collapse3" class="panel-collapse collapse">
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <h3>To Follow</h3>
-                </div>
-            </div>
-          </div>
+            <script>
+                function deleteImgFile(fln) {
+                    socket.emit('deleteRepImgFile', { data: fln });
+                    console.log(fln);
+                };
+            </script>
 
 
         </div>
 
-        
+        <div class="card card-body  m-5" style="background-color: #1f2a44;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"
+                style="background-color: #1f2a44; ">
+                <h4 class="text-center text-white"> Add/Remove Music </h4>
+            </a>
+        </div>
+
+        <!--  Music File Upload -->
+        <div id="collapse2" class="panel-collapse collapse">
+            <div id='dropZone' class='row'>
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <!-- Form for file input -->
+                    <form action="" method="post" enctype="multipart/form-data" id="js-music-upload-form" class="d-none">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input type="file" name="files[]" id="js-music-upload-files" multiple>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary" id="js-music-upload-submit">Upload
+                                files</button>
+                        </div>
+                    </form>
+                    <!-- Drop Zone -->
+
+                    <div class="upload-music-drop-zone" id="music-drop-zone">
+                        Drag & Drop mpg Files
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+            <div id="musicContainer">
+                <div id="musicRow1" class="row ">
+                </div>
+            </div>
+
+            <!-- Hidden Template for dynamics music card creation-->
+            <div id="musicCardTemplate" class="col-md-2 .bg-primary ml-4 d-none ">
+                <div class="card  border border-primary    ">
+                    <div class="text-center" height="200px" width="200px">
+                        <audio controls  id="musicCardTemplateAudio" > <source src="/static/money.mp3" type="audio/mpeg"> </audio> 
+                    </div>
+
+                    <div class="card-body  text-blue ">
+                        <h5 id="musicCardTemplateFln" class="card-title text-center">
+                            </h4>
+                            <button id="deleteMusicFile" onclick="" type="submit"
+                                class="btn btn-primary mx-auto d-block text-center">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function deleteMusicFile(fln) {
+                    socket.emit('deleteMusicFile', { data: fln });
+                    console.log(fln);
+                };
+            </script>            
+
+            
+        </div>
+    </div>
 
 
 
-      </div>
-      
-    <!--  -->    
 
- 
+    <!--  System Settings -->  
+    <div class="card card-body  m-5" style="background-color: #1f2a44;">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3" style="background-color: #1f2a44; ">
+            <h4 class="text-center text-white"> System Settings </h4>
+        </a>
+    </div>
+    <div id="collapse3" class="panel-collapse collapse">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h3>To Follow</h3>
+            </div>
+        </div>
+    </div>
+
+
+    </div>
+
+
+
+
+
+    </div>
+
+    <!--  -->
+
+
 
 </body>
+
 </html>
